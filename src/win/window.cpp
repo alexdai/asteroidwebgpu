@@ -33,7 +33,7 @@
  * Default window title.
  */
 #ifndef WINDOW_WIN_NAME
-#define WINDOW_WIN_NAME "WebGPU Demo"
+#define WINDOW_WIN_NAME "Asteroid"
 #endif
 
 /*

@@ -175,14 +175,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\win\glue.cpp" />
     <ClCompile Include="src\win\webgpu.cpp" />
     <ClCompile Include="src\win\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GBox2.h" />
+    <ClInclude Include="GBox3.h" />
+    <ClInclude Include="GCoordinates2.h" />
+    <ClInclude Include="GCoordinates3.h" />
+    <ClInclude Include="GMath.h" />
+    <ClInclude Include="GMathDef.h" />
+    <ClInclude Include="GMatrix3.h" />
+    <ClInclude Include="GMatrix4.h" />
+    <ClInclude Include="GVec1.h" />
+    <ClInclude Include="GVec2.h" />
+    <ClInclude Include="GVec3.h" />
+    <ClInclude Include="GVec4.h" />
     <ClInclude Include="inc\webgpu.h" />
     <ClInclude Include="inc\window.h" />
+    <ClInclude Include="Interval.h" />
+    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="mesh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -113,6 +113,54 @@ static char const triangle_vert_wgsl[] = R"(
 	}
 )";
 
+static char const blockrender_vert_wgsl[] = R"(
+	struct VertexIn {
+		@location(0) position : vec3<f32>;
+		@location(1) normal : vec3<f32>;
+	};
+	struct VertexOut {
+		builtin(position) position;
+		@location(0) positionModel : vec3<f32>;
+		@location(1) normalWorld : vec3<f32>;
+		@location(2) albedo : vec3<f32>;
+	};
+	struct DrawConstantBuffer {
+		@location(0) mWorld : mat4x4<f32>;
+		@location(1) mViewProjection : mat4x4<f32>;
+		@location(2) mSurfaceColor : mat4x4<f32>;
+		@location(3) mDeepColor : mat4x4<f32>;
+		@location(4) uint : mTextureIndex;
+	};
+	@group(0) @binding(0) var<uniform> uCB : DrawConstantBuffer;
+
+	fn saturate(x: f32) -> f32 {
+		return clamp(x, 0.0, 1.0);
+	}
+
+	fn linstep(min: f32, max: f32, s: f32) -> f32 {
+		return saturate((s - min) / (max - min));
+	}
+
+	@stage(vertex)
+	fn main(input : VertexIn) -> VertexOut {
+
+		var output : VertexOut;
+
+		var positionWorld : vec3<f32> = mul(mWorld, vec4<f32>(input.position, 1.0f)).xyz;
+		output.position = mul(mViewProjection, vec4<f32>(positionWorld, 1.0f));
+
+		output.positionModel = input.position;
+		output.normalWorld = mul(mWorld, vec4(input.normal, 0.0f)).xyz; 
+
+		var depth : f32 = linstep(0.5f, 0.7f, length(input.position.xyz));
+		output.albedo = mix(mDeepColor.xyz, mSurfaceColor.xyz, depth);
+
+		return output;
+	}
+)";
+
+
+
 /**
  * Fragment shader SPIR-V.
  * \code
@@ -151,6 +199,63 @@ static char const triangle_frag_wgsl[] = R"(
 		return vec4<f32>(vCol, 1.0);
 	}
 )";
+
+static char const blockrender_frag_wgsl[] = R"(
+	fn saturate(x: f32) -> f32 {
+		return clamp(x, 0.0, 1.0);
+	}
+	@stage(fragment)
+	fn main( @location(0) positionModel : vec3<f32>, 
+			 @location(1) normalWorld : vec3<f32>;
+			 @location(2) albedo : vec3<f32>;) -> @location(0) vec4<f32> {
+
+	// Tweaking
+	var lightPos : vec3<f32>  = vec3<f32>(0.5, -0.25, -1);
+	var applyNoise : bool = true;
+	var applyLight : bool = true;
+	var applyCoverage : bool = true;
+
+	var normal : vec3 = normalize(input.normalWorld);
+
+	// Triplanar projection
+	var blendWeights : vec3<f32> = abs(normalize(input.positionModel));
+	var uvw : vec3<f32> = input.positionModel * 0.5f + 0.5f;
+	// Tighten up the blending zone
+	blendWeights = saturate((blendWeights - 0.2f) * 7.0f);
+	blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z).xxx;
+
+	var coords1 : vec3<f32> = float3(uvw.yz, 0);
+	var coords2 : vec3<f32> = float3(uvw.zx, 1);
+	var coords3 : vec3<f32> = float3(uvw.xy, 2);
+
+	// TODO: Should really branch out zero'd weight ones, but FXC is being a pain
+	// and forward substituting the above and then refusing to compile "divergent"
+	// coordinates...
+	// Just disable the texture for now
+	var detailTex : vec3<f32> = 1.0f;
+	// float3 detailTex = 0.0f;
+	// detailTex += blendWeights.x * Tex[mTextureIndex].Sample(Sampler, coords1).xyz;
+	// detailTex += blendWeights.y * Tex[mTextureIndex].Sample(Sampler, coords2).xyz;
+	// detailTex += blendWeights.z * Tex[mTextureIndex].Sample(Sampler, coords3).xyz;
+
+	var wrap : f32 = 0.0f;
+	var wrap_diffuse : f32 = saturate((dot(normal, normalize(lightPos)) + wrap) / (1.0f + wrap));
+	var light : f32 = 3.0f * wrap_diffuse + 0.06f;
+
+	// Approximate partial coverage on distant asteroids (by fading them out)
+	var coverage : f32 = saturate(input.position.z * 4000.0f);
+
+	var color : vec3<f32> = input.albedo;
+	// flatten 3 if?
+	if (applyNoise)    color = color * (2.0f * detailTex);
+	if (applyLight)    color = color * light;
+	if (applyCoverage) color = color * coverage;
+	return vec4<f32>(color, 1.0f);
+}
+)";
+
+
+
 
 /**
  * Helper to create a shader from SPIR-V IR.
