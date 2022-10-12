@@ -21,8 +21,6 @@
 
 #pragma warning( disable:4251)
 
-namespace ggp
-{
     /*!\addtogroup GMath GMath
     * @{
     */
@@ -760,6 +758,5 @@ namespace ggp
     }
 
     /*! @} */
-} // namespace
 
 #endif  //__interval_h__

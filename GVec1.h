@@ -19,8 +19,6 @@
 
 #pragma warning(disable:4251)
 
-namespace ggp
-{
     /*!\addtogroup GMath GMath
     * @{
     */
@@ -262,4 +260,3 @@ namespace ggp
     typedef CVec1<double> CVector1d;
 
     /*! @} */
-} // namespace

@@ -18,8 +18,6 @@
 
 #include "GMathDef.h"
 
-namespace ggp
-{
     /*!\addtogroup GMath GMath
     * @{
     */
@@ -640,6 +638,5 @@ namespace ggp
     typedef CVec4<double> CVector4d;
 
     /*! @} */
-} // namespace
 
 #endif

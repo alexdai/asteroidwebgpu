@@ -22,8 +22,6 @@
 
 #pragma warning( disable:4251)
 
-namespace ggp
-{
     /*!\addtogroup GMath GMath
     * @{
     */
@@ -843,6 +841,5 @@ namespace ggp
     typedef CMatrix3<double> CMatrix3d;
 
     /*! @} */
-} // namespace
 
 #endif
