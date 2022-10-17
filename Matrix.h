@@ -12,12 +12,10 @@
 #define Matrix_h__
 
 //#include <initializer_list>
-#include "GMath/GVec2.h"
-#include "GMath/GVec3.h"
-#include "GMath/GVec4.h"
+#include "GVec2.h"
+#include "GVec3.h"
+#include "GVec4.h"
 
-namespace ggp
-{
     /*!
     * @class Matrix
     * @brief 
@@ -347,9 +345,6 @@ namespace ggp
 
     typedef Matrix<double, 1, 2> RowVector2d;
     typedef Matrix<double, 2, 1> ColumnVector2d;
-
-
-}
 
 
 #endif // Matrix_h__

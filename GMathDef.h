@@ -25,11 +25,6 @@
 #include <limits>
 #include <vector>
 
-namespace ggp
-{
-    /*!\addtogroup GMath GMath
-    * @{
-    */
 
 #ifndef _MATH_DEFINES_DEFINED
 #define _MATH_DEFINES_DEFINED
@@ -1082,6 +1077,3 @@ namespace ggp
         //! 相同，此时 t 与 f 表示区间的左右端点
         UnivariateFunctionPointAttribute point_attributes;
     };
-
-    /*! @} */
-} // namespace

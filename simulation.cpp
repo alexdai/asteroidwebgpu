@@ -1,6 +1,6 @@
 
 #include "simulation.h"
-//#include "settings.h"
+#include "settings.h"
 //#include "texture.h"
 //#include "util.h"
 
@@ -25,18 +25,18 @@ static int const NUM_COLOR_SCHEMES = (int)(sizeof(COLOR_SCHEMES) / (6 * sizeof(i
 static CVector4f RandomPointOnSphere(std::mt19937& rng)
 {
     // TODO: convert to our math format
-    /*
+    
     std::normal_distribution<float> dist;
 
     CVector4f r;
     for (;;) {
-        r = XMVectorSet(dist(rng), dist(rng), dist(rng), 0.0f);
-        auto d2 = XMVectorGetX(XMVector3LengthSq(r));
+        r = CVector4f(dist(rng), dist(rng), dist(rng), 0.0f);
+        auto d2 = r.SqrLength();
         if (d2 > std::numeric_limits<float>::min()) {
-            return XMVector3Normalize(r);
+            return CVector4f(r.Normalize(), r.Normalize(), r.Normalize(), r.Normalize());
         }
     }
-    */
+    
     // Unreachable
 }
 
@@ -72,7 +72,7 @@ AsteroidsSimulation::AsteroidsSimulation(unsigned int rngSeed, unsigned int aste
     // Constants
     std::normal_distribution<float> orbitRadiusDist(SIM_ORBIT_RADIUS, 0.6f * SIM_DISC_RADIUS);
     std::normal_distribution<float> heightDist(0.0f, 0.4f);
-    std::uniform_real_distribution<float> angleDist(-XM_PI, XM_PI);
+    std::uniform_real_distribution<float> angleDist(-M_PI, M_PI);
     std::uniform_real_distribution<float> radialVelocityDist(5.0f, 15.0f);
     std::uniform_real_distribution<float> spinVelocityDist(-2.0f, 2.0f);
     std::normal_distribution<float> scaleDist(1.3f, 0.7f);
@@ -83,7 +83,7 @@ AsteroidsSimulation::AsteroidsSimulation(unsigned int rngSeed, unsigned int aste
 
     // Approximate SRGB->Linear for colors
     float linearColorSchemes[NUM_COLOR_SCHEMES * 6];
-    for (int i = 0; i < ARRAYSIZE(linearColorSchemes); ++i) {
+    for (int i = 0; i < NUM_COLOR_SCHEMES * 6; ++i) {
         linearColorSchemes[i] = std::powf((float)COLOR_SCHEMES[i] / 255.0f, 2.2f);
     }
 
@@ -94,15 +94,15 @@ AsteroidsSimulation::AsteroidsSimulation(unsigned int rngSeed, unsigned int aste
         scale = scale * 0.3f;
 #endif
         scale = std::max(scale, SIM_MIN_SCALE);
-        auto scaleMatrix = XMMatrixScaling(scale, scale, scale);
+        auto scaleMatrix = CMatrix4f::Scale(CVector3f::Zero, scale);
 
         auto orbitRadius = orbitRadiusDist(rng);
         auto discPosY = float(SIM_DISC_RADIUS) * heightDist(rng);
 
-        auto disc = XMMatrixTranslation(orbitRadius, discPosY, 0.0f);
+        auto disc = CMatrix4f::Translate(orbitRadius, discPosY, 0.0f);
 
         auto positionAngle = angleDist(rng);
-        auto orbit = XMMatrixRotationY(positionAngle);
+        auto orbit = CMatrix4f::Rotate(CVector3f::Zero, CVector3f(0.f, 1.f, 0.f), positionAngle);
 
         auto meshInstance = (unsigned int)(i / instancesPerMesh); // Vcache friendly ordering
 
@@ -110,14 +110,15 @@ AsteroidsSimulation::AsteroidsSimulation(unsigned int rngSeed, unsigned int aste
         mAsteroidStatic[i].spinVelocity = spinVelocityDist(rng) / scale; // Smaller asteroids spin faster
         mAsteroidStatic[i].orbitVelocity = radialVelocityDist(rng) / (scale * orbitRadius); // Smaller asteroids go faster, and use arc length
         mAsteroidStatic[i].vertexStart = mVertexCountPerMesh * meshInstance;
-        mAsteroidStatic[i].spinAxis = XMVector3Normalize(RandomPointOnSphere(rng));
+        mAsteroidStatic[i].spinAxis = RandomPointOnSphere(rng);
+        mAsteroidStatic[i].spinAxis.Normalize();
         mAsteroidStatic[i].scale = scale;
         mAsteroidStatic[i].textureIndex = textureIndexDist(rng);
 
         auto colorScheme = ((int)abs(colorSchemeDist(rng))) % NUM_COLOR_SCHEMES;
         auto c = linearColorSchemes + 6 * colorScheme;
-        mAsteroidStatic[i].surfaceColor = XMFLOAT3(c[0], c[1], c[2]);
-        mAsteroidStatic[i].deepColor = XMFLOAT3(c[3], c[4], c[5]);
+        mAsteroidStatic[i].surfaceColor = CVector3f(c[0], c[1], c[2]);
+        mAsteroidStatic[i].deepColor = CVector3f(c[3], c[4], c[5]);
 
         // Initialize dynamic data
         mAsteroidDynamic[i].world = scaleMatrix * disc * orbit;
@@ -128,7 +129,7 @@ AsteroidsSimulation::AsteroidsSimulation(unsigned int rngSeed, unsigned int aste
 }
 
 
-void AsteroidsSimulation::Update(float frameTime, DirectX::XMVECTOR cameraEye, const Settings& settings,
+void AsteroidsSimulation::Update(float frameTime, CVector4f cameraEye, const Settings& settings,
     size_t startIndex, size_t count)
 {
     bool animate = settings.animate;
@@ -142,14 +143,14 @@ void AsteroidsSimulation::Update(float frameTime, DirectX::XMVECTOR cameraEye, c
         AsteroidDynamic& dynamicData = mAsteroidDynamic[i];
 
         if (animate) {
-            auto orbit = XMMatrixRotationY(staticData.orbitVelocity * frameTime);
-            auto spin = XMMatrixRotationNormal(staticData.spinAxis, staticData.spinVelocity * frameTime);
+            auto orbit = CMatrix4f::Rotate(CVector3f::Zero, CVector3f(0.f, 1.f, 0.f), staticData.orbitVelocity * frameTime);
+            auto spin = CMatrix4f::Rotate(CVector3f::Zero, staticData.spinAxis.Vec3(), staticData.spinVelocity * frameTime);
             dynamicData.world = spin * dynamicData.world * orbit;
         }
 
         // Pick LOD based on approx screen area - can be very approximate
-        auto position = dynamicData.world.r[3];
-        auto distanceToEyeRcp = XMVectorGetX(XMVector3ReciprocalLengthEst(XMVectorSubtract(cameraEye, position)));
+        auto position = dynamicData.world[3];
+        auto distanceToEyeRcp = 1.f / (cameraEye - position).Length();
         // Add one subdiv for each factor of 2 past min
         auto relativeScreenSizeLog2 = VeryApproxLog2f(staticData.scale * distanceToEyeRcp);
         float subdivFloat = std::max(0.0f, relativeScreenSizeLog2 - minSubdivSizeLog2);
@@ -160,84 +161,4 @@ void AsteroidsSimulation::Update(float frameTime, DirectX::XMVECTOR cameraEye, c
         dynamicData.indexStart = mIndexOffsets[subdiv];
         dynamicData.indexCount = mIndexOffsets[subdiv + 1] - dynamicData.indexStart;
     }
-}
-
-
-void AsteroidsSimulation::CreateTextures(unsigned int textureCount, unsigned int rngSeed)
-{
-    mTextureDim = TEXTURE_DIM;
-    mTextureCount = textureCount;
-    mTextureArraySize = 3;
-    {
-        DWORD msbIndex = 0;
-        auto result = _BitScanReverse(&msbIndex, mTextureDim);
-        assert(result); // Should only fail if mTextureDim = 0
-        mTextureMipLevels = msbIndex + 1;
-    }
-
-    assert((mTextureDim & (mTextureDim - 1)) == 0); // Must be pow2 currently; we don't handle wacky mip chains
-
-    std::cout
-        << "Creating " << textureCount << " "
-        << mTextureDim << "x" << mTextureDim << " textures..." << std::endl;
-
-    // Allocate space
-    UINT texelSizeInBytes = 4; // RGBA8
-    UINT extraSpaceForMips = 2;
-    UINT totalTextureSizeInBytes = texelSizeInBytes * mTextureDim * mTextureDim * mTextureArraySize * extraSpaceForMips;
-    totalTextureSizeInBytes = Align(totalTextureSizeInBytes, 64U); // Avoid false sharing
-
-    mTextureDataBuffer.resize(totalTextureSizeInBytes * textureCount);
-    mTextureSubresources.resize(mTextureArraySize * mTextureMipLevels * textureCount);
-
-    // Parallel over textures
-    std::vector<unsigned int> rngSeeds(textureCount);
-    {
-        std::mt19937 seeds;
-        for (auto& i : rngSeeds) i = seeds();
-    }
-
-    concurrency::parallel_for(UINT(0), textureCount, [&](UINT t) {
-        std::mt19937 rng(rngSeeds[t]);
-        auto randomNoise = std::uniform_real_distribution<float>(0.0f, 10000.0f);
-        auto randomNoiseScale = std::uniform_real_distribution<float>(100, 150);
-        auto randomPersistence = std::normal_distribution<float>(0.9f, 0.2f);
-
-        BYTE* data = mTextureDataBuffer.data() + t * totalTextureSizeInBytes;
-        for (UINT a = 0; a < mTextureArraySize; ++a) {
-            for (UINT m = 0; m < mTextureMipLevels; ++m) {
-                auto width = mTextureDim >> m;
-                auto height = mTextureDim >> m;
-
-                D3D11_SUBRESOURCE_DATA initialData = {};
-                initialData.pSysMem = data;
-                initialData.SysMemPitch = width * texelSizeInBytes;
-                mTextureSubresources[SubresourceIndex(t, a, m)] = initialData;
-
-                data += initialData.SysMemPitch * height;
-            }
-        }
-
-        // Use same parameters for each of the tri-planar projection planes/cube map faces/etc.
-        float noiseScale = randomNoiseScale(rng) / float(mTextureDim);
-        float persistence = randomPersistence(rng);
-        float strength = 1.5f;
-
-        for (UINT a = 0; a < mTextureArraySize; ++a) {
-            float redScale = 255.0f;
-            float greenScale = 255.0f;
-            float blueScale = 255.0f;
-
-            // DEBUG colors
-#if 0
-            redScale = t & 1 ? 255.0f : 0.0f;
-            greenScale = t & 2 ? 255.0f : 0.0f;
-            blueScale = t & 4 ? 255.0f : 0.0f;
-#endif
-
-            FillNoise2D_RGBA8(&mTextureSubresources[SubresourceIndex(t, a)], mTextureDim, mTextureDim, mTextureMipLevels,
-                randomNoise(rng), persistence, noiseScale, strength,
-                redScale, greenScale, blueScale);
-        }
-        }); // parallel_for
 }

@@ -82,7 +82,7 @@
         *@brief  当成复数使用
         *@return 复数
         */
-        complex<Type> AsComplex() { return complex<Type>(X, Y); }
+        std::complex<Type> AsComplex() { return complex<Type>(X, Y); }
 
         /*!
         *@brief  交换分量得到的向量

@@ -16,10 +16,10 @@
 #ifndef G_COORDINATES3_H
 #define G_COORDINATES3_H
 
-#include "GMath/GVec2.h"
-#include "GMath/GVec3.h"
-#include "GMath/Interval.h"
-#include "GMath/GMatrix4.h"
+#include "GVec2.h"
+#include "GVec3.h"
+#include "Interval.h"
+#include "GMatrix4.h"
 
 namespace ggp
 {

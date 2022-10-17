@@ -176,6 +176,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="simplexnoise1234.c" />
+    <ClCompile Include="simulation.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\win\glue.cpp" />
     <ClCompile Include="src\win\webgpu.cpp" />
@@ -199,6 +201,10 @@
     <ClInclude Include="Interval.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="noise.h" />
+    <ClInclude Include="settings.h" />
+    <ClInclude Include="simplexnoise1234.h" />
+    <ClInclude Include="simulation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

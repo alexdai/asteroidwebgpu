@@ -7,11 +7,8 @@
 
 #include "GMatrix4.h"
 
-//#include Settings
-struct Settings
-{
+#include "settings.h"
 
-};
 
 // We may want to ISPC-ify this down the road and just let it own the data structure in AoSoA format or similar
 // For now we'll just do the dumb thing and see if it's fast enough

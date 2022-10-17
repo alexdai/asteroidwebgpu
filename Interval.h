@@ -677,7 +677,7 @@
 
     //一个区间扣减多个区间
     template<typename Type, typename IterType, typename FunctorT>
-    void IntervalSubstract(const CInterval<Type> & I, IterType begin, IterType end, vector<CInterval<Type>> & intervals, FunctorT getter)
+    void IntervalSubstract(const CInterval<Type>& I, IterType begin, IterType end, std::vector<CInterval<Type>>& intervals, FunctorT getter)
     {
         const int kLeft = 0;
         const int kRight = 1;
