@@ -175,6 +175,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="simplexnoise1234.c" />
     <ClCompile Include="simulation.cpp" />
@@ -184,6 +185,8 @@
     <ClCompile Include="src\win\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="app.h" />
+    <ClInclude Include="camera.h" />
     <ClInclude Include="GBox2.h" />
     <ClInclude Include="GBox3.h" />
     <ClInclude Include="GCoordinates2.h" />

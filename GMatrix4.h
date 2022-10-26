@@ -1,21 +1,4 @@
-﻿/*!
-* @file      GMatrix4.h
-* @brief     4*4矩阵的基本定义
-* @details   
-            矩阵类是一个4x4的模板类，提供对矩阵的基本操作方法外，同时提供平移，缩放，旋转和镜像等几何变化的常用矩阵的设置，向量的变换和矩阵的操作方法
-            预定了类型CMatrix4f和CMatrix4d可以直接使用。
-* @author
-* @date      2021/09/14
-* @copyright Copyright 2012-2022 GLODON
-**********************************************************************************
-* @par 修改日志:
-* |  Date  | Description | Author     |
-* | :----: | :----       | :----      |
-* | 2021/09/14 | 袁冠杰<yuangj-a> | GGP-55193 完成算法剩余部分的注释 |
-*
-**********************************************************************************
-*/
-#ifndef G_MATRIX4_H
+﻿#ifndef G_MATRIX4_H
 #define G_MATRIX4_H
 
 #include "GMathDef.h"
@@ -27,24 +10,10 @@
 #pragma warning( disable:4251)
 
 
-    /*!\addtogroup GMath GMath
-    * @{
-    */
-
-   /*!
-    * @class CMatrix4
-    * @brief 4*4矩阵的基本定义
-              该类给出4*4矩阵的定义，提供相关的计算方法，被其它很多类使用。该模板类对整型数据类型不支持
-    */
-    
     template<typename Type>
     class  CMatrix4
     {
     public:
-        /*!
-        * @enum  ConstructMethod
-        * @brief 构造方法
-        */
         enum ConstructMethod { CM_ZERO, CM_IDENTITY };
 
         CMatrix4(ConstructMethod method = CM_IDENTITY)
@@ -59,25 +28,6 @@
             }
         }
 
-        /*!
-        *@brief  根据16个数值，构造矩阵
-        *@param[in] a11 第一行
-        *@param[in] a12
-        *@param[in] a13
-        *@param[in] a14
-        *@param[in] a21  第二行
-        *@param[in] a22
-        *@param[in] a23
-        *@param[in] a24
-        *@param[in] a31  第三行
-        *@param[in] a32
-        *@param[in] a33
-        *@param[in] a34
-        *@param[in] a41  第四行
-        *@param[in] a42
-        *@param[in] a43
-        *@param[in] a44  
-        */
         CMatrix4(const Type& a11, const Type& a12, const Type& a13, const Type& a14,
                  const Type& a21, const Type& a22, const Type& a23, const Type& a24,
                  const Type& a31, const Type& a32, const Type& a33, const Type& a34,
@@ -90,13 +40,6 @@
         }
 
 
-        /*!
-        *@brief  四个三维行向量构造矩阵
-        *@param[in] r1 旋转向量
-        *@param[in] r2 旋转向量
-        *@param[in] r3 旋转向量
-        *@param[in] t  平移向量 
-        */
         CMatrix4(const CVec3<Type> & r1, const CVec3<Type> & r2, const CVec3<Type> & r3, const CVec3<Type> & t)
         {
             m_data[0][0] = r1[0]; m_data[0][1] = r1[1]; m_data[0][2] = r1[2]; m_data[0][3] = 0;
@@ -105,10 +48,6 @@
             m_data[3][0] = t[0];  m_data[3][1] = t[1];  m_data[3][2] = t[2];  m_data[3][3] = 1;//左乘
         }
 
-        /*!
-        *@brief  4个4维行向量构造矩阵
-        *@param[in] r1,r2,r3,r4   4个4维行向量  
-        */
         CMatrix4(const CVec4<Type> & r1, const CVec4<Type> & r2, const CVec4<Type> & r3, const CVec4<Type> & r4)
         {
             m_data[0][0] = r1[0]; m_data[0][1] = r1[1]; m_data[0][2] = r1[2]; m_data[0][3] = r1[3];
@@ -117,12 +56,6 @@
             m_data[3][0] = r4[0]; m_data[3][1] = r4[1]; m_data[3][2] = r4[2]; m_data[3][3] = r4[3];
         }
 
-        /*!
-        *@brief  旋转向量，平移向量构造矩阵
-        *@param[in] R  旋转矩阵
-        *@param[in] t  平移向量  
-        */
-        
         CMatrix4(const CMatrix3<Type> & R, const CVec3<Type> & t)
         {
             m_data[0][0] = R[0][0]; m_data[0][1] = R[0][1]; m_data[0][2] = R[0][2]; m_data[0][3] = 0;
@@ -131,10 +64,6 @@
             m_data[3][0] = t[0];    m_data[3][1] = t[1];    m_data[3][2] = t[2];    m_data[3][3] = 1;
         }
 
-        /*!
-        *@brief     由二维变换矩阵构造三维变换矩阵
-        *@param[in] m  3x3表示的二维图形变换矩阵
-        */
         CMatrix4(const CMatrix3<Type> & m)
         {
             m_data[0][0] = m[0][0]; m_data[0][1] = m[0][1]; m_data[0][2] = 0; m_data[0][3] = m[0][2];
@@ -143,19 +72,11 @@
             m_data[3][0] = m[2][0]; m_data[3][1] = m[2][1]; m_data[3][2] = 0; m_data[3][3] = m[2][2];
         }
 
-        /*!
-        *@brief  矩阵的拷贝构造
-        *@param[in] matrix  传入的矩阵  
-        */
         CMatrix4(const CMatrix4<Type> & matrix)
         {
             *this = matrix;
         }
 
-        /*!
-        *@brief 获取当前矩阵，获取信息存储在另一个矩阵
-        *@return 矩阵
-        */
         CMatrix3<Type> Matrix3() const
         {
             CMatrix3<Type> mat3;
@@ -166,10 +87,6 @@
             return mat3;
         }
 
-        /*!
-        *@brief  矩阵转换到CMatrix4d
-        *@return 要转换的矩阵
-        */
         CMatrix4<double> Matrix4d() const
         {
             CMatrix4<double> mat;
@@ -196,10 +113,6 @@
             return mat;
         }
 
-        /*!
-        *@brief  矩阵转换到CMatrix4f
-        *@return 要转换的矩阵
-        */
         CMatrix4<float> Matrix4f() const
         {
             CMatrix4<float> mat;
@@ -227,29 +140,17 @@
         }
 
 
-        /*!
-        *@brief  令矩阵本身为单位阵
-        */
         void MakeIdentity()
         {
             memset(m_data, 0, sizeof(Type) * 16);
             m_data[0][0]=m_data[1][1]=m_data[2][2]=m_data[3][3] = (Type)1.0;
         }
 
-        /*!
-        *@brief  令矩阵本身为零矩阵
-        */
         void MakeZero()
         {
             memset(m_data, 0, sizeof(Type) * 16);
         }
 
-        /*!
-        *@brief  判断矩阵是否为单位阵
-        *@return    是否为单位阵
-        * - true 是
-        * - false 不是
-        */
         bool IsIdentity() const
         {
             auto eps = 2.0*std::numeric_limits<Type>::epsilon();
@@ -286,12 +187,6 @@
             return true;
         }
 
-        /*!
-        *@brief  判断矩阵是否为镜像矩阵
-        *@return    是否为镜像矩阵
-        * - true 是
-        * - false 不是
-        */
         inline bool IsMirror()const
         {
             CVec3<Type> &vx = *(CVec3<Type>*)m_data[0];
@@ -310,12 +205,6 @@
             return false;
         }
 
-        /*!
-        *@brief     判断对于二维对象是否是镜像矩阵
-        *@return    是否为镜像矩阵
-        * - true 是
-        * - false 不是
-        */
         inline bool IsXOYMirror() const
         {
             CVec2<Type> vx (m_data[0][0], m_data[0][1]);
@@ -324,11 +213,6 @@
             return vx.Cross(vy) < (Type)0.0;
         }
 
-        /*!
-        *@brief   把矩阵本身变为逆矩阵
-        *@param[in] pSuccess 当用户对该矩阵是否可逆不确定时,传入一个非空指针,可将求逆是否成功的信息返回
-        *@return   逆矩阵
-        */
         CMatrix4<Type> & Invert(bool* pSuccess = NULL)
         {
 
@@ -432,11 +316,6 @@
 
 
 
-        /*!
-        *@brief  自身矩阵不变，返回自身矩阵的逆矩阵
-        *@param[in] pSuccess 当用户对该矩阵是否可逆不确定时,传入一个非空指针,可将求逆是否成功的信息返回
-        *@return     逆矩阵
-        */
         CMatrix4<Type> Inverse(bool* pSuccess = NULL) const
         {
             CMatrix4<Type> mat(*this);
@@ -445,10 +324,6 @@
         }
 
 
-        /*!
-        *@brief  把自身矩阵进行转置
-        *@return    转置矩阵
-        */
         CMatrix4<Type> & Transpose()
         {
             Type temp;
@@ -461,10 +336,6 @@
 #undef Swap
         }
 
-        /*!
-        *@brief  把获得其转置矩阵
-        *@return 转置矩阵
-        */
         CMatrix4<Type> GetTranspose() const
         {
             return CMatrix4<Type>(m_data[0][0], m_data[1][0], m_data[2][0], m_data[3][0],
@@ -474,16 +345,6 @@
         }
 
 
-        /*!
-        *@brief  计算给定行和列的三阶行列式的值
-        *@param[in] r1  给定行
-        *@param[in] r2  给定行
-        *@param[in] r3  给定行
-        *@param[in] c1  给定列
-        *@param[in] c2  给定列
-        *@param[in] c3  给定列
-        *@return    行列式的值
-        */
         Type Det3(int r1, int r2, int r3, int c1, int c2, int c3) const
         {
 
@@ -506,10 +367,6 @@
 
 
 
-        /*!
-        *@brief  计算矩阵行列式的值
-        *@return 行列式的值
-        */
         Type Det4() const
         {
             Type det = Type(0.0);
@@ -521,10 +378,6 @@
         }
 
         
-        /*!
-        *@brief 基于向量的1范数
-        *@return 1范数
-        */
         Type Norm1() const
         {
             Type s1 = abs(m_data[0][0]) + abs(m_data[1][0]) + abs(m_data[2][0]) + abs(m_data[3][0]);
@@ -534,14 +387,6 @@
             return (s1 + s2 + s3 + s4);
         }
 
-        /*!
-        *@brief  判断自身矩阵和传入矩阵是否在给定误差下相等
-        *@param[in] matrix 传入矩阵
-        *@param[in] a_tolerance  给定误差
-        *@return    是否相等
-        * - true 是
-        * - false 不是
-        */
         bool IsEqual(const CMatrix4<Type> & matrix, double a_tolerance  = g_DoubleResolution) const
         {
             for(int i = 0; i < 4; i++)
@@ -556,23 +401,11 @@
         }
 
 
-        /*!
-        *@brief  返回给定行和列的值
-        *@param[in] row  给定行
-        *@param[in] col  给定列
-        *@return    值
-        */
         inline const Type& Value(int row, int col) const 
         { 
             return m_data[row][col]; 
         }
 
-        /*!
-        *@brief  设置给定行和列的值
-        *@param[in] row  给定行
-        *@param[in] col  给定列
-        *@param[in] Val 值 
-        */ 
         inline void Set(int row, int col,const Type& Val)  
         { 
             m_data[row][col] = Val; 
@@ -586,84 +419,42 @@
             m_data[3][0] = m[3][0]; m_data[3][1] = m[3][1]; m_data[3][2] = m[3][2]; m_data[3][3] = m[3][3];
         }
 
-
-        /*!
-        *@brief  返回给定行和列的值
-        *@param[in] row  给定行
-        *@param[in] col  给定列
-        *@return    值
-        */
         inline const Type& operator()(int row, int col) const 
         { 
             return m_data[row][col];
         }
 
-        /*!
-        *@brief  返回给定行和列的值
-        *@param[in] row  给定行
-        *@param[in] col  给定列
-        *@return 值
-        */ 
         inline Type& operator()(int row, int col)  
         { 
             return m_data[row][col];
         }
 
-        /*!
-        *@brief  返回二维数组的指针
-        *@return 二维数组指针 
-        */ 
         inline const Type * Ptr() const
         { 
             return &(m_data[0][0]); 
         }
 
-        /*!
-        *@brief  返回二维数组的指针
-        *@return 二维数组的指针
-        */
         inline Type* Ptr()
         {
             return &(m_data[0][0]); 
         }
 
-        /*!
-        *@brief  返回二维数组中某行的指针
-        *@param[in] i  给定行
-        *@return  行指针
-        */ 
         Type * operator [](int i)
         { 
             return m_data[i]; 
         }
 
-        /*!
-        *@brief  返回二维数组中某行的指针
-        *@param[in] i  给定行
-        *@return  
-        */ 
         inline const Type * operator [](int i) const
         { 
             return m_data[i]; 
         }
 
-        /*!
-        *@brief  矩阵赋值操作
-        *@param[in] m  传入矩阵
-        *@return    自身矩阵
-        */
         inline CMatrix4<Type> & operator =(const CMatrix4<Type> & m)
         {
             memmove(m_data, m.m_data, sizeof(Type) * 16);
             return *this;
         }
 
-        /*!
-        *@brief  自身矩阵乘以传入矩阵，结果设置为自身
-        *@param[in] matrix   传入矩阵
-        *@return    相乘后的结果
-        *@sa MultRight(const CMatrix4<Type> & m)
-        */
         CMatrix4<Type> & operator *=(const CMatrix4<Type> & matrix)
         {
             return MultRight(matrix);
@@ -721,12 +512,6 @@
             return m;
         }
 
-        /*!
-        *@brief  两矩阵相乘，返回结果矩阵
-        *@param[in] m1
-        *@param[in] m2
-        *@return    结果矩阵
-        */
         friend CMatrix4<Type> operator *(const CMatrix4<Type> & m1, const CMatrix4<Type> & m2)
         { 
             CMatrix4<Type> m = m1; 
@@ -734,12 +519,6 @@
             return m; 
         }
 
-         /*!
-        *@brief  矩阵乘以列向量，返回列向量
-        *@param[in] m 矩阵
-        *@param[in] v 列向量
-        *@return   结果向量
-        */
         friend CVec4<Type> operator *(const CMatrix4<Type> & m, const CVec4<Type> & v)
         {
             CVec4<Type> vRet;
@@ -752,12 +531,6 @@
             return vRet;
         }
 
-        /*!
-        *@brief  行向量乘以矩阵，返回行向量
-        *@param[in] v 行向量
-        *@param[in]  m 矩阵
-        *@return    结果向量
-        */
         friend CVec4<Type> operator *(const CVec4<Type> & v, const CMatrix4<Type> & m)
         {
             CVec4<Type> vRet;
@@ -770,14 +543,6 @@
             return vRet;
         }
 
-        /*!
-        *@brief  判断两矩阵是否相等
-        *@param[in] m1   矩阵1
-        *@param[in] m2   矩阵2
-        *@return    是否相等
-        * - true 是
-        * - false 不是      
-        */
         friend bool operator ==(const CMatrix4<Type> & m1, const CMatrix4<Type> & m2)
         {
             return (
@@ -803,25 +568,12 @@
             );
         }
 
-        /*!
-        *@brief  判断两矩阵是否不相等
-        *@param[in] m1   矩阵1
-        *@param[in] m2   矩阵2
-        *@return    是否不相等
-        * - true 是
-        * - false 不是
-        */
         friend bool operator !=(const CMatrix4<Type> & m1, const CMatrix4<Type> & m2)
         { 
             return !(m1 == m2);
         }
 
 
-        /*!
-        *@brief  构造一个平移矩阵返回
-        *@param[in] t  平移量
-        *@return      平移矩阵
-        */
         static inline CMatrix4<Type> Translate(const CVec3<Type> & t)
         {
             CMatrix4<Type> m;
@@ -830,13 +582,6 @@
             return m;
         }
 
-        /*!
-        *@brief  根据平移向量的三个分量返回构造的平移矩阵
-        *@param[in] tx  平移X分量
-        *@param[in] ty  平移Y分量
-        *@param[in] tz  平移Z分量
-        *@return    平移矩阵
-        */
         static inline CMatrix4<Type> Translate(const Type& tx,const Type& ty,const Type& tz)
         {
             CMatrix4<Type> m;
@@ -845,13 +590,6 @@
             return m;
         }
 
-        /*!
-        *@brief  返回绕空间任意轴的旋转矩阵
-        *@param[in] Pos   基点
-        *@param[in] Dir   轴方向
-        *@param[in] Angle        旋转角度，这里按照弧度计算
-        *@return    旋转矩阵
-        */
         static inline CMatrix4<Type> Rotate(const CVec3<Type>& Pos,const CVec3<Type>& Dir, const Type& Angle)
         {
             CMatrix4<Type> m;
@@ -860,12 +598,6 @@
             return m;
         }
 
-        /*!
-        *@brief  返回构造的等比缩放矩阵
-        *@param[in] Pos    基点
-        *@param[in] Scale         缩放比例
-        *@return    比例矩阵
-        */
         static inline CMatrix4<Type> Scale(const CVec3<Type>& Pos, const Type& Scale)
         {
             CMatrix4<Type> m;
@@ -873,12 +605,7 @@
 
             return m;
         }
-        /*!
-        *@brief  返回构造的非等比缩放矩阵
-        *@param[in] Pos    基点
-        *@param[in] Scales         缩放比例
-        *@return       比例矩阵
-        */
+
         static inline CMatrix4<Type> Scale(const CVec3<Type>& Pos, const CVec3<Type>& Scales)
         {
             CMatrix4<Type> m;
@@ -887,12 +614,6 @@
             return m;
         }
 
-        /*!
-        *@brief  返回构造空间任意平面镜像矩阵
-        *@param[in] Pos      镜像平面的基点
-        *@param[in] Normal   镜像平面的法向
-        *@return      镜像矩阵
-        */
         static inline CMatrix4<Type> Mirror(const CVec3<Type>& Pos, const CVec3<Type>& Normal)
         {
             CMatrix4<Type> m;
@@ -911,11 +632,6 @@
             m_data[3][0] = t.X; m_data[3][1] = t.Y; m_data[3][2] = t.Z;
         }
 
-
-        /*!
-        *@brief  设置自身矩阵为平移矩阵
-        *@param[in] t  平移量
-        */
         void SetTranslate(const CVec3<Type> & t)
         {
             MakeIdentity();
@@ -924,10 +640,6 @@
             m_data[3][2] = t[2];
         }
 
-        /*!
-        *@brief  在该矩阵基础上添加一个平移向量
-        *@param[in] t  平移量
-        */
         void AddTranslate(const CVec3<Type> & t)
         {
             m_data[3][0] += t[0];
@@ -935,11 +647,6 @@
             m_data[3][2] += t[2];
         }
 
-       /*!
-        *@brief  设置自身矩阵为平移矩阵
-        *@param[in]  t  平移量
-        *@return 设置后的当前矩阵
-        */
         CMatrix4<Type>& SetToTranslation(const CVec3<Type> & t)
         {
             MakeIdentity();
@@ -949,12 +656,6 @@
             return *this;
         }
 
-        /*!
-        *@brief  根据平移向量的三个分量设置自身矩阵为平移矩阵
-        *@param[in] tx  平移X分量
-        *@param[in] ty  平移Y分量
-        *@param[in] tz  平移Z分量
-        */
         inline void SetTranslate(const Type& tx,const Type& ty,const Type& tz)
         {
             MakeIdentity();
@@ -963,12 +664,6 @@
             m_data[3][2] = tz;
         }
 
-        /*!
-        *@brief  设置自身矩阵为绕空间任意轴的旋转矩阵
-        *@param[in] Pos   基点
-        *@param[in] Dir   轴方向
-        *@param[in] Angle        旋转角度，这里按照弧度计算
-        */
         void SetRotate(const CVec3<Type>& Pos,const CVec3<Type>& Dir, const Type& Angle)
         {
             Type a,b,c;
@@ -1100,11 +795,6 @@
 
         }
 
-        /*!
-        *@brief  设置自身矩阵等比缩放矩阵
-        *@param[in] Pos    基点
-        *@param[in] Scale         缩放比例
-        */
         void SetScale(const CVec3<Type>& Pos, const Type& Scale)
         {
             assert(Scale > 0.0);
@@ -1121,11 +811,7 @@
             m_data[3][2] = Pos.Z * ((Type)1.0 - Scale);      
 
         }
-        /*!
-        *@brief  设置自身矩阵非等比缩放矩阵
-        *@param[in] Pos   基点
-        *@param[in] Scales 缩放比例
-        */
+
         void SetScale(const CVec3<Type>& Pos, const CVec3<Type>& Scales)
         {
             assert(Scales.X != 0.0 && Scales.Y!=0.0 && Scales.Z!=0);
@@ -1140,12 +826,6 @@
             m_data[3][2] = Pos.Z * ((Type)1.0 - Scales.Z);      
         }
 
-        /*!
-        *@brief  设置自身矩阵为空间任意平面的镜像矩阵
-        *@param[in] Pos      基点
-        *@param[in] Normal   法向
-        *@sa CGeometry::Transform(const CMatrix4d & rMatrix)
-        */
         void SetMirror(const CVec3<Type>& Pos, const CVec3<Type>& Normal)
         {
             CVec3<Type> v1;
@@ -1185,26 +865,12 @@
         }
 
 
-        /*!
-        *@brief  两个矩阵相乘，结果设置为自身矩阵
-        *@param[in] m1  矩阵1
-        *@param[in] m2  矩阵2
-        *@return    结果矩阵
-        */
         CMatrix4<Type>&  SetProduct(const CMatrix4<Type> & m1,const CMatrix4<Type> & m2)
         {
             (*this) = m1;
             return MultRight(m2);
         }
 
-        //矩阵自身是仿射矩阵  (M, 0), M是3x3可以融合旋转镜像,缩放, t是平移向量
-        //                 (t, 1)
-        /*!
-        *@brief 对矩阵自身复合上仿射变换，返回复合后的矩阵
-        *@param[in] R 复合变换矩阵(旋转、缩放、镜像)
-        *@param[in] t 复合平移向量
-        *@return 结果矩阵
-        */
         CMatrix4<Type> MultRight(const CMatrix3<Type> & R, const CVec3<Type> & t) const
         {
             CMatrix4<Type> m;
@@ -1227,11 +893,6 @@
             return m;
         }
 
-        /*!
-        *@brief  传入矩阵右乘当前矩阵，结果设置为自身矩阵
-        *@param[in] m  传入矩阵
-        *@return    结果矩阵
-        */
         CMatrix4<Type> & MultRight(const CMatrix4<Type> & m)
         {
             // Trivial cases
@@ -1265,11 +926,6 @@
             return *this;
         }
 
-        /*!
-        *@brief  三维点src左乘矩阵
-        *@param[in] src  传入的三维点
-        *@return     返回的三维点
-        */
         CVec3<Type> MultiPointLeft(const CVec3<Type> & src) const
         {
             Type x = src[0]*m_data[0][0] + src[1]*m_data[1][0] + src[2]*m_data[2][0] + m_data[3][0];
@@ -1282,11 +938,6 @@
             return CVec3<Type>(x*w1, y*w1, z*w1);
         }
 
-        /*!
-        *@brief  行向量src左乘矩阵,无视偏移信息
-        *@param[in] src  传入的行向量
-        *@return   返回的向量
-        */
         CVec3<Type> MultiVecLeft(const CVec3<Type> & src) const
         {
             Type x = src[0]*m_data[0][0] + src[1]*m_data[1][0] + src[2]*m_data[2][0];
@@ -1299,11 +950,6 @@
             return dst;
         }
 
-        /*!
-        *@brief  行向量src左乘矩阵
-        *@param[in] src  传入的行向量
-        *@return    返回的向量
-        */
         CVec4<Type> MultiVecLeft(const CVec4<Type> & src) const
         {
             Type x = src[0]*m_data[0][0] + src[1]*m_data[1][0] + src[2]*m_data[2][0] + src[3]*m_data[3][0];
@@ -1318,14 +964,6 @@
         }
 
 
-        /*!
-        *@brief     是否是正交且等比缩放矩阵
-        *@param[out] dScale 缩放比例
-        *@param[in]  dTol 误差
-        *@return    是否为正交等比缩放
-        * - true 是
-        * - false 不是
-        */
         bool IsOrthoScale(double & dScale, double dTol = g_DoubleResolution) const
         {
             CVec3<Type> a3(m_data[0][3], m_data[1][3], m_data[2][3]);
@@ -1358,14 +996,6 @@
             return false;
         }
 
-        /*!
-        *@brief     二维变换是否是正交且等比缩放矩阵
-        *@param[out] dScale 缩放比例
-        *@param[in]  dTol 误差
-        *@return    是否为正交等比缩放
-        * - true 是
-        * - false 不是
-        */
         bool IsXOYOrthoScale(double & dScale, double dTol = g_DoubleResolution) const
         {
             CVec2<Type> a3(m_data[0][3], m_data[1][3]);
@@ -1391,14 +1021,6 @@
             return false;
         }
 
-        /*!
-        *@brief     是否是三维正交且等比缩放矩阵
-        *@param[out] dScale 缩放比例
-        *@param[in]  dTol 误差
-        *@return    是否为正交等比缩放
-        * - true 是
-        * - false 不是
-        */
         bool IsXYZOrthoScale(double & dScale, double dTol = g_RelaxedDoubleResolution) const
         {
             CVec3<Type> r0;
@@ -1427,11 +1049,6 @@
             }
         }
 
-        /*!
-        *@brief 将矩阵流化到输出流
-        *@param[out] os 流对象
-        *@param[in] mat 给定矩阵
-        */
         friend std::ostream & operator<<(std::ostream & os, const CMatrix4<Type> & mat)
         { 
             for(unsigned int i=0; i<4; i++){
@@ -1440,11 +1057,6 @@
             return os;
         }
 
-        /*!
-        *@brief 由输入流对矩阵赋值
-        *@param[in] iStream 流对象
-        *@param[out] mat 矩阵
-        */
         friend std::istream & operator>>(std::istream & iStream, CMatrix4<Type> & mat)
         {
             for(unsigned int i=0; i<4; i++){
@@ -1453,10 +1065,6 @@
             return iStream;
         }
 
-        /*!
-        *@brief  矩阵对象按照规定格式字符串输出
-        *@return   字符串
-        */
         char* AsString()
         {
             char * a = AsStringHelper::NewString("Matrix4=[(%.20le %.20le %.20le %.20le),(%.20le %.20le %.20le %.20le),(%.20le %.20le %.20le %.20le),(%.20le %.20le %.20le %.20le)]", 
@@ -1467,11 +1075,6 @@
             return a;
         }
 
-        /*!
-        *@brief     根据字符串生成矩阵
-        *@param[in] str   传入的字符串
-        *@return     生成的矩阵
-        */
         static CMatrix4<double>* LoadFromString(char* str)
         {
             CMatrix4<double>* pMatrix = new CMatrix4<double>;
@@ -1485,12 +1088,6 @@
             return pMatrix;
         }
 
-        /*!
-        * @brief 返回矩阵中的旋转部分对应的坐标轴分量。
-        * @param[out] xAxis x轴
-        * @param[out] yAxis y轴
-        * @param[out] zAxis z轴
-        */
         void GetRotationAxes(CVec3<Type>& xAxis, CVec3<Type>& yAxis, CVec3<Type>& zAxis) const
         {
             xAxis = CVec3<Type>(m_data[0][0], m_data[0][1], m_data[0][2]);
@@ -1498,21 +1095,11 @@
             zAxis = CVec3<Type>(m_data[2][0], m_data[2][1], m_data[2][2]);
         }
 
-        /*!
-        * @brief 返回矩阵中的代表平移的分量。
-        * @return 平移分量
-        */
         CVec3<Type> GetTranslation() const
         {
             return CVec3<Type>(m_data[3][0], m_data[3][1], m_data[3][2]);    
         }
 
-        /*!
-        * @brief 矩阵分解
-        * @param[out] vTrans 平移分量
-        * @param[out] vScale 缩放分量
-        * @param[out] mRot 旋转分量矩阵
-        */
         void Decompose(CVec3<Type>& vTrans, CVec3<Type>& vScale, CMatrix3<Type>& mRot) const
         {
             vTrans.X = m_data[3][0];
@@ -1566,12 +1153,6 @@
             //mRot.Set(3,3,1);
         }
 
-        /*!
-        * @brief 矩阵组合
-        * @param[out] vTrans 平移分量
-        * @param[out] vScale 缩放分量
-        * @param[out] mRot 旋转分量矩阵
-        */
         void Compose(const CVec3<Type>& vTrans, const CVec3<Type>& vScale, const CMatrix3<Type>& mRot)
         {
             m_data[3][0] = vTrans.X;
@@ -1590,14 +1171,6 @@
             m_data[2][1] = mRot.Value(1,2) * vScale.Z;
             m_data[2][2] = mRot.Value(2,2) * vScale.Z;
         }
-
-        /*!
-        * @brief 将矩阵分块成
-        * @param[in] A 3x3矩阵
-        * @param[in] b 列向量
-        * @param[in] c 行向量
-        * @param[in] d 纯量
-        */
 
         void GetBlock3(CMatrix3<Type> & A, CVec3<Type> & b, CVec3<Type> & c, Type & d) const
         {
@@ -1619,12 +1192,6 @@
             d = m_data[3][3];
         }
 
-        /*!
-        *@brief      判断当前矩阵是否为一个有效的变换矩阵，即矩阵的平移、旋转、缩放分量都必须合法
-        *@return    是否为有效变换矩阵
-        * - true 是
-        * - false 不是
-        */
         bool IsValidTransform() const
         {
             CVec3<Type> translation;
@@ -1652,13 +1219,6 @@
             return translation.IsValid() && bValidRotation && bValidScale; 
         }
 
-        /*!
-        * @brief 生成视图矩阵
-        * @param[in] eye 相机(或者眼睛)的位置
-        * @param[in] center 目标位置
-        * @param[in] up 上方向
-        * @return 视图矩阵
-        */
         static CMatrix4<Type> MakeLookAtMatrix(const CVec3<Type>& eye, const CVec3<Type>& center,
             const CVec3<Type>& up)
         {
@@ -1683,14 +1243,6 @@
             return mat;
         }
 
-        /*!
-        * @brief 生成透视投影矩阵
-        * @param[in] fovy 张角，以角度表示
-        * @param[in] aspectRatio 宽高比
-        * @param[in] zNear 近裁剪面的距离
-        * @param[in] zFar 远剪裁面的距离
-        * @return 透视投影矩阵
-        */
         static CMatrix4<Type> MakePerspectiveMatrix(Type fovy, Type aspectRatio, Type zNear, Type zFar)
         {
             Type t = 1.0f / tan(DegToRad(fovy * 0.5f));
@@ -1709,16 +1261,6 @@
             return mat;
         }
 
-        /*!
-        * @brief 根据视锥定义生成投影矩阵
-        * @param[in] left 左平面到原点距离
-        * @param[in] right 右平面到原点距离
-        * @param[in] bottom 底平面到原点距离
-        * @param[in] top 顶面到原点距离
-        * @param[in] zNear 近裁剪面的距离
-        * @param[in] zFar 远裁剪面的距离
-        * @return 投影矩阵
-        */
         static CMatrix4<Type> MakeFrustumMatrix(Type left, Type right, Type bottom, Type top,
             Type zNear, Type zFar)
         {
@@ -1738,16 +1280,6 @@
             return mat;
         }
 
-        /*!
-        * @brief 生成正交投影矩阵
-        * @param[in] left 左平面到原点距离
-        * @param[in] right 右平面到原点距离
-        * @param[in] bottom 底平面到原点距离
-        * @param[in] top 顶面到原点距离
-        * @param[in] zNear 近裁剪面的距离
-        * @param[in] zFar 远裁剪面的距离
-        * @return 投影矩阵
-        */
         static CMatrix4<Type> MakeOrthoMatrix(Type left, Type right, Type bottom, Type top, 
             Type zNear, Type zFar)
         {
@@ -1767,14 +1299,6 @@
             return mat;
         }
 
-        /*!
-        * @brief 生成二维正交投影矩阵
-        * @param[in] left 左平面到原点距离
-        * @param[in] right 右平面到原点距离
-        * @param[in] bottom 底平面到原点距离
-        * @param[in] top 顶面到原点距离
-        * @return 投影矩阵
-        */
         static CMatrix4<Type> MakeOrtho2DMatrix(Type left, Type right, Type bottom, Type top)
         {
             return MakeOrthoMatrix(left, right, bottom, top, (Type)-1.0, (Type)1.0);
